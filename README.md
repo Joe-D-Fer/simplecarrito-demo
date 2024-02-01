@@ -9,7 +9,9 @@ Este proyecto es una demostración de un carrito de compras para un sitio web de
 - [svelte](https://www.npmjs.com/package/svelte): ^4.2.7
 - [tailwindcss](https://www.npmjs.com/package/tailwindcss): 3.4.1
 - [typescript](https://www.npmjs.com/package/typescript): ^5.0.0
-- ver package.json para ver el resto.
+- [firebase](https://www.npmjs.com/package/firebase): ^10.7.2
+- [transbank-sdk](https://www.npmjs.com/package/transbank-sdk): ^4.0.0
+- ver [package.json](https://github.com/Joe-D-Fer/simplecarrito-demo/blob/main/package.json) para ver el resto.
 
 ## Pasos de Construcción
 
