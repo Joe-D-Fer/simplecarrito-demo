@@ -53,10 +53,12 @@
 	}
 	onMount(() => {
 		console.log('carrito store:', carritoStore);
-		//console.log('from layout data:', data);
-		(data.cart.productsList).forEach((item: any) => {
+		console.log('from layout data:', data);
+		if (data.cartExists) {
+			((data.cart).productsList).forEach((item: any) => {
 			$carrito.cartItemCountTotal += item.quantity;
 		});
+		}
 	});
 </script>
 <!-- App Shell -->

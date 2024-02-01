@@ -1,19 +1,16 @@
-import { error, redirect, fail } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, query, where, doc, getDoc} from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, getDoc} from "firebase/firestore";
 import { randomBytes } from 'crypto';
 import { firebaseConfig } from '$lib/firebaseConfig.js';
 
-
-
-
-/**
- * @type {import("@firebase/firestore").DocumentData}
- */
-let cart;
-
 export async function load({ cookies }) {
-    
+    /**
+     * @type {import("@firebase/firestore").DocumentData}
+     */
+    let cart;
+    let cartExists = false;
+        
     // setup firebase connection
     const app = initializeApp(firebaseConfig);
     // fetch firestore db
@@ -23,19 +20,19 @@ export async function load({ cookies }) {
     console.log("sessionId cookie:", sessionIdCookie);
     var sessionId = '';
     if (typeof sessionIdCookie === 'undefined') {
+        console.log("generating sessionID cookie...");
         sessionId = generateSessionId();
         cookies.set('sessionId', sessionId, { path: '/' });
+        cart = {productsList:[]};
     } else {
+        console.log("using existing cookie");
         sessionId = sessionIdCookie;
-    }
+        //get cart data
+        cart = await fetchCartFromFirestore(db, sessionId);
+        cartExists = true;
+    };
 
-    //get cart data
-    const cartRef = doc(db, "carts", sessionId);
-    const cartSnap = await getDoc (cartRef);
-    if (cartSnap.exists()) {
-        console.log("cart data from layout:", cartSnap.data());
-        cart = cartSnap.data();
-    }
+    
 
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images
 
@@ -43,12 +40,13 @@ export async function load({ cookies }) {
     try {
         const data = await fetchDataFromFirestore(db);
         if (data.length === 0) {
-            throw redirect(300, '/');
+            throw error;
         }
         return {
             timestamp: timestamp,
-            sessionId,
-            cart,
+            sessionId: sessionId,
+            cart: cart,
+            cartExists : cartExists,
             db: data
         };
     } catch (err) {
@@ -80,19 +78,18 @@ async function fetchDataFromFirestore(db) {
  * @param {string} sid
  */
 async function fetchCartFromFirestore(db, sid) {
-    
-    const cartsRef = collection(db, 'carts');
-    const q = query(cartsRef, where ('sessionId', '==', sid ));
-    const querySnapshot = await getDocs(q);
-
-    /**
-   * @type {any[]}
-   */
-    const data = [];
-    querySnapshot.forEach((/** @type {{ data: () => any; }} */ doc) => {
-        data.push(doc.data());
-    });
-    return data;
+    console.log("querying firestore with sid=", sid, "...");
+    const cartRef = doc(db, "carts", sid);
+    const cartSnap = await getDoc (cartRef);
+    let cartData;
+    if (cartSnap.exists()) {
+        console.log("cart data from layout:", cartSnap.data());
+        cartData = cartSnap.data();
+    }else{
+        console.log("document not found in db...");
+        cartData = {productsList:[]};
+    }
+    return cartData;
 }
 
 
