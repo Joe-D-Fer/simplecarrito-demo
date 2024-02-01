@@ -1,38 +1,22 @@
-# create-svelte
+# Proyecto de Carrito de Compras con SvelteKit
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Este proyecto es una demostración de un carrito de compras para un sitio web de comercio electrónico, con integración para procesamiento de pagos a través de Transbank.
 
-## Creating a project
+## Dependencias
 
-If you're seeing this, you've probably already done this step. Congrats!
+- [@skeletonlabs/skeleton](https://www.npmjs.com/package/@skeletonlabs/skeleton): 2.7.1
+- [@sveltejs/kit](https://www.npmjs.com/package/@sveltejs/kit): ^2.0.0
+- [svelte](https://www.npmjs.com/package/svelte): ^4.2.7
+- [tailwindcss](https://www.npmjs.com/package/tailwindcss): 3.4.1
+- [typescript](https://www.npmjs.com/package/typescript): ^5.0.0
+- ver package.json para ver el resto.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Pasos de Construcción
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+1. Clona el repositorio: `git clone https://github.com/Joe-D-Fer/simplecarrito-demo.git`
+2. Instala las dependencias: `npm install`
+3. Ejecuta el servidor de desarrollo: `npm run dev`
 
-## Developing
+## Descarga de Node.js
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+- [Node.js 20 LTS](https://nodejs.org/en/download/)
