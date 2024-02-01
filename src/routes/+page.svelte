@@ -1,6 +1,26 @@
-<script>
+<script lang="ts">
 	import { browser } from '$app/environment';
+	import { carrito } from './stores';
   export let data;
+
+	async function addToCart(productoID:number, i:number, sessionID:string) {
+		console.log("producto a agregar:", productoID);
+		const dataToSend = { productoID, sessionID };
+		const response = await fetch('/addToCart', {
+				method: 'POST',
+				headers: {
+						'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ dataToSend }),
+		});
+		if (response.ok) {
+				console.log("producto agregado.");
+				$carrito.isCartOpen = true;
+				$carrito.productIndex = i;
+		} else {
+				console.log("error al agregar producto.");
+		}
+	}
 </script>
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
@@ -26,7 +46,7 @@
 
 			<section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mx-4">
 				{#if browser}
-				{#each data.db as producto }
+				{#each data.db as producto, i }
 				<div>
 					<a class="block card card-hover pb-2" href="/productos/{producto.id}">
 							<img class="h-auto max-w-full rounded-lg" src="{producto.images[0]}" alt="">
@@ -34,7 +54,7 @@
 							<h3 class="h3 text-left mx-4">{producto.title}</h3>
 							<p class="h4 text-primary text-left mx-4 my-2">${(producto.price).toLocaleString()}</p>
 							<div class="mb-2 mx-4">
-								<button class="btn variant-filled w-full" on:click|preventDefault={() => console.log("agregar a carro")}>Agregar al Carro</button>
+								<button class="btn variant-filled w-full" on:click|preventDefault={() => addToCart(producto.id, i, data.sessionId)}>Agregar al Carro</button>
 							</div>
 					</a>
 				</div>
