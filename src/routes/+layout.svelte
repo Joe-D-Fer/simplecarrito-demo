@@ -107,7 +107,7 @@
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<strong class="text-xl">SimpleCarrito</strong>
+				<a href="/"><strong class="text-xl">SimpleCarrito</strong></a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 				<div class="relative inline-block">

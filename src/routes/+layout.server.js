@@ -5,52 +5,40 @@ import { randomBytes } from 'crypto';
 import { firebaseConfig } from '$lib/firebaseConfig.js';
 
 export async function load({ cookies }) {
-    /**
-     * @type {import("@firebase/firestore").DocumentData}
-     */
     let cart;
     let cartExists = false;
-        
-    // setup firebase connection
+
     const app = initializeApp(firebaseConfig);
-    // fetch firestore db
     const db = getFirestore(app);
 
     const sessionIdCookie = cookies.get('sessionId');
     console.log("sessionId cookie:", sessionIdCookie);
-    var sessionId = '';
-    if (typeof sessionIdCookie === 'undefined') {
-        console.log("generating sessionID cookie...");
-        sessionId = generateSessionId();
-        cookies.set('sessionId', sessionId, { path: '/' });
-        cart = {productsList:[]};
+    let sessionId = sessionIdCookie || generateSessionId(cookies);
+
+    if (!sessionIdCookie) {
+        cart = { productsList: [] };
     } else {
         console.log("using existing cookie");
-        sessionId = sessionIdCookie;
-        //get cart data
         cart = await fetchCartFromFirestore(db, sessionId);
         cartExists = true;
-    };
-
-    
+    }
 
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images
-
 
     try {
         const data = await fetchDataFromFirestore(db);
         if (data.length === 0) {
-            throw error;
+            throw new Error("No data found in Firestore.");
         }
         return {
-            timestamp: timestamp,
-            sessionId: sessionId,
-            cart: cart,
-            cartExists : cartExists,
+            timestamp,
+            sessionId,
+            cart,
+            cartExists,
             db: data
         };
     } catch (err) {
-        throw error(500, 'Conección con base de datos reiniciada');
+        throw error(500, 'Connection with database reset. Error: ' + err);
     }
 }
 
@@ -58,20 +46,16 @@ export async function load({ cookies }) {
  * @param {import("@firebase/firestore").Firestore} db
  */
 async function fetchDataFromFirestore(db) {
-    
     const querySnapshot = await getDocs(collection(db, "products"));
-
     /**
-   * @type {any[]}
-   */
+     * @type {import("@firebase/firestore").DocumentData[]}
+     */
     const data = [];
-    querySnapshot.forEach((/** @type {{ data: () => any; }} */ doc) => {
+    querySnapshot.forEach(doc => {
         data.push(doc.data());
     });
     return data;
 }
-
-
 
 /**
  * @param {import("@firebase/firestore").Firestore} db
@@ -80,20 +64,22 @@ async function fetchDataFromFirestore(db) {
 async function fetchCartFromFirestore(db, sid) {
     console.log("querying firestore with sid=", sid, "...");
     const cartRef = doc(db, "carts", sid);
-    const cartSnap = await getDoc (cartRef);
-    let cartData;
+    const cartSnap = await getDoc(cartRef);
     if (cartSnap.exists()) {
         console.log("cart data from layout:", cartSnap.data());
-        cartData = cartSnap.data();
-    }else{
+        return cartSnap.data();
+    } else {
         console.log("document not found in db...");
-        cartData = {productsList:[]};
+        throw new Error("Cart document not found in Firestore.");
     }
-    return cartData;
 }
 
-
-function generateSessionId() {
-    // Generate a random session ID using Node.js's crypto module
-    return randomBytes(8).toString('hex');
+/**
+ * @param {{ set: (arg0: string, arg1: string, arg2: { path: string; }) => void; }} cookies
+ */
+function generateSessionId(cookies) {
+    let sessionId = randomBytes(8).toString('hex');
+    cookies.set('sessionId', sessionId, { path: '/' });
+    console.log("generated sessionID cookie:", sessionId);
+    return sessionId;
 }

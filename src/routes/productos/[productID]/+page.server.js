@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
 import { firebaseConfig } from '$lib/firebaseConfig';
 
 /** @type {import('./$types').PageServerLoad} */
@@ -21,13 +21,13 @@ export async function load({ params }) {
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images
 
     try {
-        const data = await fetchDataFromFirestore(db);
+        const data = await fetchDataFromFirestore(db, productId);
         if (data.length === 0) {
             throw error(420, 'Enhance your calm');
         }
         return {
             timestamp: timestamp,
-            data: data // Assuming you want to return the fetched data as well
+            item: data
         };
     } catch (err) {
         throw error(420, 'Enhance your calm');
@@ -36,10 +36,12 @@ export async function load({ params }) {
 
 /**
  * @param {import("@firebase/firestore").Firestore} db
+ * @param {number} productId
  */
-async function fetchDataFromFirestore(db) {
-    
-    const querySnapshot = await getDocs(collection(db, "products"));
+async function fetchDataFromFirestore(db, productId) {
+    const productsRef = collection(db, "products");
+    const q = query(productsRef, where("id", "==", productId));
+    const querySnapshot = await getDocs(q);
 
     /**
    * @type {any[]}
