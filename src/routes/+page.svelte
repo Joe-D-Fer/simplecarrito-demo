@@ -1,8 +1,17 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { carrito } from './stores';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings, ToastStore } from '@skeletonlabs/skeleton';
   export let data;
 
+	const toastStore = getToastStore();
+	const t: ToastSettings = {
+		message: 'Error Agregando Producto al Carro...',
+	};
+	const t2: ToastSettings = {
+		message: 'producto agregado!',
+	};
 	async function addToCart(productoID:number, i:number, sessionID:string) {
 		console.log("producto a agregar:", productoID);
 		const dataToSend = { productoID, sessionID };
@@ -17,8 +26,11 @@
 				console.log("producto agregado.");
 				$carrito.isCartOpen = true;
 				$carrito.productIndex = i;
+				$carrito.cartItemCountTotal += 1;
+				toastStore.trigger(t2);
 		} else {
 				console.log("error al agregar producto.");
+				toastStore.trigger(t);
 		}
 	}
 </script>

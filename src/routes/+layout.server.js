@@ -8,9 +8,9 @@ import { firebaseConfig } from '$lib/firebaseConfig.js';
 
 
 /**
- * @type {never[]}
+ * @type {import("@firebase/firestore").DocumentData}
  */
-let cart = [];
+let cart;
 
 export async function load({ cookies }) {
     
@@ -33,7 +33,8 @@ export async function load({ cookies }) {
     const cartRef = doc(db, "carts", sessionId);
     const cartSnap = await getDoc (cartRef);
     if (cartSnap.exists()) {
-        
+        console.log("cart data from layout:", cartSnap.data());
+        cart = cartSnap.data();
     }
 
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images
