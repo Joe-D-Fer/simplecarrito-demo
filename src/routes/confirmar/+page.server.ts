@@ -3,10 +3,11 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, type DocumentData, Firestore} from "firebase/firestore";
 import { randomBytes } from 'crypto';
 import { firebaseConfig } from '$lib/firebaseConfig.js';
-import { WebpayPlus } from "transbank-sdk";
+import pkg from "transbank-sdk";
+
 import { transbankOptions } from "$lib/server/transbankoptions.server.js";
 
-
+const {WebpayPlus} = pkg;
 export async function load({ cookies }) {
     let cart;
     let cartExists = false;
@@ -38,7 +39,7 @@ export async function load({ cookies }) {
     }
 
     const buyOrder = generatePurchaseOrder();
-    const amount = calculateAmount(cart);
+    const amount = calculateAmount(cart.productsList);
     const returnUrl = "https://simplecarrito-demo.vercel.app/return";
     const createResponse = await (new WebpayPlus.Transaction(transbankOptions)).create(
       buyOrder,
