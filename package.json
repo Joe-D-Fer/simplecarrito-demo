@@ -43,6 +43,6 @@
   "dependencies": {
     "@floating-ui/dom": "1.6.1",
     "firebase": "^10.7.2",
-    "transbank-sdk": "^4.0.0"
+    "transbank-sdk": "^5.0.0"
   }
 }
