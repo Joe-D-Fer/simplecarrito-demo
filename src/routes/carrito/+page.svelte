@@ -7,6 +7,7 @@
 
   export let data;
   $: reactiveProductsList = data.cart.productsList;
+  $: totalPrice = 0;
   const toastStore = getToastStore();
 	const t: ToastSettings = {
 		message: 'Error Agregando Producto al Carro...',
@@ -58,6 +59,7 @@
 				console.log("producto agregado.");
 				$carrito.cartItemCountTotal += 1;
         data.cart.productsList[i].quantity +=1;
+        totalPrice += data.cart.productsList[i].price;
 		} else {
 				console.log("error al agregar producto.");
 				toastStore.trigger(t);
@@ -79,12 +81,14 @@
           $carrito.cartItemCountTotal -= 1;
         }
 				if (data.cart.productsList[i].quantity == 1) {
+          totalPrice -= data.cart.productsList[i].price;
           data.cart.productsList.splice(i, 1);
           data = data;
           toastStore.trigger(t2);
           console.log("readctserverdata:", data);
         }else{
           data.cart.productsList[i].quantity -= 1;
+          totalPrice -= data.cart.productsList[i].price;
         }
 		} else {
 				console.log("error al quitar producto.");
@@ -93,7 +97,11 @@
 	}
 
   onMount(()=> {
+    data = data;
     let itemCountTotal = 0;
+    data.cart.productsList.forEach((element: { price: number; quantity: number; }) => {
+      totalPrice += element.price * element.quantity;
+    });
     console.log("data on mount:", data);
     if (!(data.cart.productsList.length == 0)) {
       data.cart.productsList.forEach((element: { quantity: number; }) => {
@@ -105,10 +113,11 @@
     }
   })
 </script>
+{#if (reactiveProductsList).length > 0}
 <div class="grid grid-cols-12 gap-4 w-full">
-  <div class="col-span-9">
-  {#if (reactiveProductsList).length > 0}
-    <div class="flex items-center mt-4 pt-4 ml-1 pl-1 md:ml-4 md:pl-4">
+  <div class="col-span-12 lg:col-span-8">
+  
+    <div class="flex items-center mt-4 pt-4 ml-1 pl-1 lg:ml-4 lg:pl-4 w-full">
       <p class="h3 mr-4">Carrito</p>
       <p>
       {#if ($carrito.cartItemCountTotal == 1)}
@@ -118,15 +127,9 @@
       {/if}
       </p>
     </div>
-  {/if}
-    <div class="flex justify-center p-1 m-1 md:p-4 md:m-4">
-      <div class="bg-white rounded-lg">
-        {#if (reactiveProductsList).length == 0}
-          <div class="flex m-4 p-4 rounded-lg text-gray-800">
-            
-            <p class="h2">Tu Carrito está vacío</p>
-          </div>
-        {:else}
+  
+    <div class="flex justify-center p-1 m-1 lg:pl-4 lg:ml-4" style="margin-bottom: 200px;">
+      <div class="bg-white rounded-lg w-full">
           <div class="grid grid-cols-12 gap-4 w-full">
             {#each reactiveProductsList as producto, i}
               <div class="py-4 px-0 col-span-12 lg:col-span-5 flex">
@@ -145,31 +148,55 @@
                 <div class="text-gray-900 m-4">${(producto.price).toLocaleString()}</div>
               </div>
 
-              <div class="p-4 px-0 col-span-9 lg:col-span-3 flex justify-end">
-                <div class="btn-group m-4" style="height: 3rem;">
-                  <button class="addtocart-btn bg-gray-600" on:click|preventDefault={() => removeFromCart(producto.id, data.sessionId, i)}>-</button>
-                  <input class="text-gray-800" type="text" style="width: 4rem;" value="{producto.quantity}" disabled/>
-                  <button class="addtocart-btn bg-gray-600" on:click|preventDefault={() => addToCart(producto.id, data.sessionId, i)}>+</button>
-                </div> 
+              <div class="relative px-0 col-span-9 lg:col-span-3 flex items-center">
+                <div class="absolute right-0">
+                  <div class="btn-group transform scale-50 items-center bg-gray-300" style="height: 3rem;">
+                    <button class="addtocart-btn bg-gray-600 h-full" on:click|preventDefault={() => removeFromCart(producto.id, data.sessionId, i)}>-</button>
+                    <p class="h3 text-gray-800 text-end px-2" style="min-width: 4rem;">{producto.quantity}</p>
+                    <button class="addtocart-btn bg-gray-600 h-full" on:click|preventDefault={() => addToCart(producto.id, data.sessionId, i)}>+</button>
+                  </div> 
+                </div>
               </div>
             {/each}
           </div>
-        {/if}
       </div>
     </div>
   </div>
-  <div class="col-span-3">
-    <p class="h3 mr-4">Resumen de la Compra</p>
-    <div class="flex justify-center p-1 m-1 md:p-4 md:m-4">
-      <div class="bg-white rounded-lg">
-        <p class="h5 text-gray-800">productos</p>
-        <p class="h5 text-gray-800">Total</p>
-        <a class="btn btn-variant-filled bg-primary" href="">Continuar Compra</a>
+  <div class="col-span-12 lg:col-span-4">
+    <div class="flex items-center mt-4 pt-4 p-1 m-1 hidden lg:block">
+      <p class="h3 mr-4">Resumen de la Compra</p>
+    </div>
+    <div class="flex justify-center w-full absolute bottom-0 lg:static lg:mr-4 lg:pr-4">
+      <div class="bg-white rounded-lg w-full p-4">
+        {#if ($carrito.cartItemCountTotal == 1)}
+          <span class="text-gray-800 h5">Producto &#40;1&#41;</span>
+        {:else}
+          <span class="text-gray-800 h5">Productos &#40;{$carrito.cartItemCountTotal}&#41;</span>
+        {/if}
+        <div class="flex justify-between pb-4">
+          <p class="h5 text-gray-800 font-bold">Total:</p>
+          <p class="h5 text-gray-800 font-bold">${totalPrice.toLocaleString()}</p>
+        </div>
+        <a class="btn bg-gradient-to-br variant-gradient-tertiary-secondary text-white font-bold w-full" href="/confirmar">Continuar Compra</a>
       </div>
     </div>
   </div>
 </div>
-{#if (reactiveProductsList).length == 0}
+{:else}
+  <div class="grid grid-cols-12 gap-4 w-full">
+    <div class="col-span-12 md:col-span-8 md:col-start-3"> 
+      <div class="flex p-1 m-1 lg:pl-4 lg:ml-4">
+        <div class="bg-white rounded-lg w-full m-4 p-4">
+            <div class="flex justify-center rounded-lg text-gray-800">
+              <p class="h3 font-bold">Tu Carrito está vacío</p>
+            </div>
+            <div class="flex justify-center rounded-lg text-gray-800">
+              <p class="h4">Agrega productos a tu carrito para comprar!</p>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
 <div class="flex justify-center">
   <img src="/empty-logo.webp" alt="empty cart logo">
 </div>  

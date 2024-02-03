@@ -1,41 +1,45 @@
+import { redirect } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc} from "firebase/firestore";
 import { randomBytes } from 'crypto';
 import { firebaseConfig } from '$lib/firebaseConfig.js';
 
 export async function load({ cookies }) {
-  let cart;
-  let cartExists = false;
+    let cart;
+    let cartExists = false;
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  const sessionIdCookie = cookies.get('sessionId');
-  console.log("sessionId cookie:", sessionIdCookie);
-  let sessionId = sessionIdCookie || generateSessionId(cookies);
+    const sessionIdCookie = cookies.get('sessionId');
+    console.log("sessionId cookie:", sessionIdCookie);
+    let sessionId = sessionIdCookie || generateSessionId(cookies);
 
-  if (!sessionIdCookie) {
-      cart = { productsList: [] };
-  } else {
-      console.log("using existing cookie");
-      try {
-          cart = await fetchCartFromFirestore(db, sessionId);
-          cartExists = true;
-      } catch (err) {
-          console.log("Error fetching cart from Firestore:", err);
-          console.log("Invalidating sessionId cookie and regenerating session ID...");
-          cookies.set('sessionId', '', { path: '/', expires: new Date(0) }); // Invalidate cookie
-          sessionId = generateSessionId(cookies); // Regenerate session ID
-          cart = { productsList: [] }; // Set empty cart
-      }
-  }
+    if (!sessionIdCookie) {
+        cart = { productsList: [] };
+        redirect(308, "/carrito");
+    } else {
+        console.log("using existing cookie");
+        try {
+            cart = await fetchCartFromFirestore(db, sessionId);
+            cartExists = true;
+            if (cart.productsList.length == 0) {
+              redirect(308, "/carrito");
+            }
+        } catch (err) {
+            console.log("Error fetching cart from Firestore:", err);
+            console.log("Invalidating sessionId cookie and regenerating session ID...");
+            cookies.set('sessionId', '', { path: '/', expires: new Date(0) }); // Invalidate cookie
+            redirect(308, "/carrito");
+        }
+    }
 
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images
 
     return {
         timestamp,
-        sessionId,
-        cart,
+        verifiedSid: sessionId,
+        verifiedCart: cart,
         cartExists
     };
 }
