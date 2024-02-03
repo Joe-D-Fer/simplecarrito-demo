@@ -1,0 +1,1 @@
+<h1>pago aceptado</h1>
