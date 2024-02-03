@@ -177,7 +177,7 @@
           <p class="h5 text-gray-800 font-bold">Total:</p>
           <p class="h5 text-gray-800 font-bold">${totalPrice.toLocaleString()}</p>
         </div>
-        <a class="btn bg-gradient-to-br variant-gradient-tertiary-secondary text-white font-bold w-full" href="/confirmar">Continuar Compra</a>
+        <a data-sveltekit-preload-data="tap" class="btn bg-gradient-to-br variant-gradient-tertiary-secondary text-white font-bold w-full" href="/confirmar">Continuar Compra</a>
       </div>
     </div>
   </div>

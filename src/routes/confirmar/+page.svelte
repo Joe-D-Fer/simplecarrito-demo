@@ -1,24 +1,6 @@
 <script lang="ts">
   export let data;
 
-  let submitting = false;
-  async function createTransaction() {
-    submitting = true;
-    const SID = data.verifiedSid;
-    const dataToSend = { SID };
-		const response = await fetch('/createTransaction', {
-				method: 'POST',
-				headers: {
-						'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ dataToSend }),
-		});
-		if (response.ok) {
-				console.log("transaccion creada.");
-		} else {
-				console.log("error al crear transaccion...");
-		}
-  }
   function calculateItemCountPrice(cart: { quantity: number; price: number; }[]) {
     let cartItemCountTotal = 0;
     let totalPrice = 0;
@@ -88,8 +70,10 @@
           <p class="h5 text-gray-800 font-bold">Total:</p>
           <p class="h5 text-gray-800 font-bold">${verifiedTotalPrice.toLocaleString()}</p>
         </div>
-        <!-- svelte-ignore a11y-invalid-attribute -->
-        <button class="btn bg-gradient-to-br variant-gradient-tertiary-secondary text-white font-bold w-full" disabled={submitting} on:click|preventDefault={createTransaction}>Ir a Pagar</button>
+        <form method="POST" action="{data.viewData.url}">
+          <input type="hidden" name="token_ws" value="{data.viewData.token}" />
+          <button type="submit" class="btn bg-gradient-to-br variant-gradient-tertiary-secondary text-white font-bold w-full">Ir a Pagar</button>
+        </form>
       </div>
     </div>
   </div>
