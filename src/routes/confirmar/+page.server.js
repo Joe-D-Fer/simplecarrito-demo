@@ -1,6 +1,6 @@
-import { error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, doc, getDoc} from "firebase/firestore";
+import { getFirestore, doc, getDoc} from "firebase/firestore";
 import { randomBytes } from 'crypto';
 import { firebaseConfig } from '$lib/firebaseConfig.js';
 
@@ -17,53 +17,33 @@ export async function load({ cookies }) {
 
     if (!sessionIdCookie) {
         cart = { productsList: [] };
+        redirect(308, "/carrito");
     } else {
         console.log("using existing cookie");
         try {
             cart = await fetchCartFromFirestore(db, sessionId);
             cartExists = true;
+            if (cart.productsList.length == 0) {
+              redirect(308, "/carrito");
+            }
         } catch (err) {
             console.log("Error fetching cart from Firestore:", err);
             console.log("Invalidating sessionId cookie and regenerating session ID...");
             cookies.set('sessionId', '', { path: '/', expires: new Date(0) }); // Invalidate cookie
-            sessionId = generateSessionId(cookies); // Regenerate session ID
-            cart = { productsList: [] }; // Set empty cart
+            redirect(308, "/carrito");
         }
     }
 
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images
 
-    try {
-        const data = await fetchDataFromFirestore(db);
-        if (data.length === 0) {
-            throw new Error("No data found in Firestore.");
-        }
-        return {
-            timestamp,
-            sessionId,
-            cart,
-            cartExists,
-            db: data
-        };
-    } catch (err) {
-        throw error(500, 'Connection with database reset. Error: ' + err);
-    }
+    return {
+        timestamp,
+        verifiedSid: sessionId,
+        verifiedCart: cart,
+        cartExists
+    };
 }
 
-/**
- * @param {import("@firebase/firestore").Firestore} db
- */
-async function fetchDataFromFirestore(db) {
-    const querySnapshot = await getDocs(collection(db, "products"));
-    /**
-     * @type {import("@firebase/firestore").DocumentData[]}
-     */
-    const data = [];
-    querySnapshot.forEach(doc => {
-        data.push(doc.data());
-    });
-    return data;
-}
 
 /**
  * @param {import("@firebase/firestore").Firestore} db

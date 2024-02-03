@@ -63,12 +63,15 @@
 					<a class="block card card-hover pb-2" href="/productos/{producto.id}">
 							<img class="h-auto max-w-full rounded-lg" src="{producto.images[0]}" alt="">
 							<p class="text-gray-300 text-left uppercase mx-4 mt-4">{producto.brand}</p>
-							<h3 class="h3 text-left mx-4">{producto.title}</h3>
+							<div class="flex flex-col mx-4">
+									<h3 class="h3 text-left line-clamp-2">{producto.title}</h3>
+							</div>
 							<p class="h4 text-primary text-left mx-4 my-2">${(producto.price).toLocaleString()}</p>
 							<div class="mb-2 mx-4">
-								<button class="btn variant-filled w-full" on:click|preventDefault={() => addToCart(producto.id, i, data.sessionId)}>Agregar al Carro</button>
+									<button class="btn variant-filled w-full" on:click|preventDefault={() => addToCart(producto.id, i, data.sessionId)}>Agregar al Carro</button>
 							</div>
 					</a>
+				
 				</div>
 				{/each}
 				{/if}
