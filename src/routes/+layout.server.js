@@ -19,8 +19,16 @@ export async function load({ cookies }) {
         cart = { productsList: [] };
     } else {
         console.log("using existing cookie");
-        cart = await fetchCartFromFirestore(db, sessionId);
-        cartExists = true;
+        try {
+            cart = await fetchCartFromFirestore(db, sessionId);
+            cartExists = true;
+        } catch (err) {
+            console.log("Error fetching cart from Firestore:", err);
+            console.log("Invalidating sessionId cookie and regenerating session ID...");
+            cookies.set('sessionId', '', { path: '/', expires: new Date(0) }); // Invalidate cookie
+            sessionId = generateSessionId(cookies); // Regenerate session ID
+            cart = { productsList: [] }; // Set empty cart
+        }
     }
 
     const timestamp = new Date().getTime(); // Get current timestamp also reloads images

@@ -1,4 +1,4 @@
-import { error, redirect, fail, json } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
 import { firebaseConfig } from '$lib/firebaseConfig';
@@ -57,6 +57,8 @@ export async function POST({ request }) {
            // If no match found, push a new object
           cartData.productsList.push({
             id: productData[0].id, 
+            title: productData[0].title,
+            brand: productData[0].brand,
             price: productData[0].price, 
             image: productData[0].images[0], 
             quantity: 1
@@ -69,6 +71,8 @@ export async function POST({ request }) {
       await setDoc(doc(db, "carts", sid), {
         productsList: [{
           id: productData[0].id, 
+          title: productData[0].title,
+          brand: productData[0].brand,
           price: productData[0].price, 
           image: productData[0].images[0], 
           quantity: 1

@@ -50,6 +50,49 @@
       // If not valid, revert to the last safe input value
       inputValue = lastsafeinputValue;
     }
+	};
+	async function addToCart(productoID:number, sessionID:string) {
+		console.log("producto a agregar:", productoID);
+		const dataToSend = { productoID, sessionID };
+		const response = await fetch('/addToCart', {
+				method: 'POST',
+				headers: {
+						'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ dataToSend }),
+		});
+		if (response.ok) {
+				console.log("producto agregado.");
+				$carrito.cartItemCountTotal += 1;
+				console.log("carrito.prdocutindex store: ", $carrito.productIndex);
+				console.log("data.cart.productsList: ", data.cart.productsList);
+        inputValue = (parseInt(inputValue) + 1).toString();
+		} else {
+				console.log("error al agregar producto.");
+		}
+	}
+  async function removeFromCart(productoID:number, sessionID:string) {
+		if (parseInt(inputValue)>0) {
+			console.log("producto a quitar:", productoID);
+			const dataToSend = { productoID, sessionID };
+			const response = await fetch('/removeFromCart', {
+					method: 'POST',
+					headers: {
+							'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ dataToSend }),
+			});
+			if (response.ok) {
+					console.log("producto quitado.");
+					if ($carrito.cartItemCountTotal > 0) {
+						$carrito.cartItemCountTotal -= 1;
+					}
+					inputValue = (parseInt(inputValue) - 1).toString();
+			} else {
+					console.log("error al quitar producto.");
+			}
+		}
+		
 	}
 	onMount(() => {
 		console.log('carrito store:', carritoStore);
@@ -88,9 +131,9 @@
 						</div>
 						<div class="m-4">${(data.db[$carrito.productIndex].price).toLocaleString()}</div>
 						<div class="btn-group variant-filled m-4" style="height: 3rem;">
-							<button>-</button>
-							<input type="text" style="width: 4rem;" bind:value={inputValue} on:input={handleInput}/>
-							<button>+</button>
+							<button on:click|preventDefault={() => removeFromCart(data.db[$carrito.productIndex].id, data.sessionId)}>-</button>
+							<input type="text" style="width: 4rem;" bind:value={inputValue} disabled/>
+							<button on:click|preventDefault={() => addToCart(data.db[$carrito.productIndex].id, data.sessionId)}>+</button>
 						</div>
 					</div>
 					<div class="flex justify-end items-center mt-4">
@@ -114,7 +157,6 @@
 				<a
 				class="btn variant-filled"
 				href="/carrito"
-				on:click={togglePopupCarro}
 			><div>
 				{#if carritoStore.cartItemCountTotal != 0}
 				<span class="badge-icon variant-filled-primary absolute -top-0 -right-0 z-10 text-white">{carritoStore.cartItemCountTotal}</span>
