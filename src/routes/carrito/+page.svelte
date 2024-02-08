@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getToastStore } from '@skeletonlabs/skeleton';
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
-  import { carrito } from '../stores.js';
+  import { carrito } from '../stores';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 

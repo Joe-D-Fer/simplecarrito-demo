@@ -1,6 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, type DocumentData } from "firebase/firestore";
 import { firebaseConfig } from '$lib/firebaseConfig';
 
 export async function POST({ request }) {
@@ -23,11 +23,8 @@ export async function POST({ request }) {
     const q = query(productsRef, where("id", "==", productoID));
     // query
     const querySnap = await getDocs (q);
-    /**
-    * @type {import("@firebase/firestore").DocumentData[]}
-    */
     // save query result in productData array []
-    const productData = [];
+    const productData: DocumentData[] = [];
     querySnap.forEach((doc) => {
       productData.push(doc.data());
     });
