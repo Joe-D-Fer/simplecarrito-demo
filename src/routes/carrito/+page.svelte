@@ -6,6 +6,7 @@
 	import { invalidate } from '$app/navigation';
 
   export let data;
+  data.cart.productsList = data.cart.productsList;
   $: reactiveProductsList = data.cart.productsList;
   $: totalPrice = 0;
   const toastStore = getToastStore();
