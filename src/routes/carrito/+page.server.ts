@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc} from "firebase/firestore";
+import { getFirestore, doc, getDoc, Firestore} from "firebase/firestore";
 import { randomBytes } from 'crypto';
 import { firebaseConfig } from '$lib/firebaseConfig.js';
 
@@ -41,11 +41,7 @@ export async function load({ cookies }) {
 }
 
 
-/**
- * @param {import("@firebase/firestore").Firestore} db
- * @param {string} sid
- */
-async function fetchCartFromFirestore(db, sid) {
+async function fetchCartFromFirestore(db: Firestore, sid: string) {
     console.log("querying firestore with sid=", sid, "...");
     const cartRef = doc(db, "carts", sid);
     const cartSnap = await getDoc(cartRef);
@@ -58,10 +54,7 @@ async function fetchCartFromFirestore(db, sid) {
     }
 }
 
-/**
- * @param {{ set: (arg0: string, arg1: string, arg2: { path: string; }) => void; }} cookies
- */
-function generateSessionId(cookies) {
+function generateSessionId(cookies: { set: (arg0: string, arg1: string, arg2: { path: string; }) => void; }) {
     let sessionId = randomBytes(8).toString('hex');
     cookies.set('sessionId', sessionId, { path: '/' });
     console.log("generated sessionID cookie:", sessionId);

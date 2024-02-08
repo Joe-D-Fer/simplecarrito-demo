@@ -1,9 +1,8 @@
 import { error } from '@sveltejs/kit';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where, Firestore, type DocumentData } from "firebase/firestore";
 import { firebaseConfig } from '$lib/firebaseConfig';
 
-/** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
     // Parse params.productID as a number
     const productId = parseInt(params.productID);
@@ -34,20 +33,14 @@ export async function load({ params }) {
     }
 }
 
-/**
- * @param {import("@firebase/firestore").Firestore} db
- * @param {number} productId
- */
-async function fetchDataFromFirestore(db, productId) {
+
+async function fetchDataFromFirestore(db: Firestore, productId: number) {
     const productsRef = collection(db, "products");
     const q = query(productsRef, where("id", "==", productId));
     const querySnapshot = await getDocs(q);
 
-    /**
-   * @type {any[]}
-   */
-    const data = [];
-    querySnapshot.forEach((/** @type {{ data: () => any; }} */ doc) => {
+    const data: DocumentData[] = [];
+    querySnapshot.forEach((doc) => {
         data.push(doc.data());
     });
     return data;
