@@ -11,7 +11,7 @@ export async function GET({ url } : RequestEvent)
 		const commitResponse = await (new WebpayPlus.Transaction(transbankOptions)).commit(token_ws);
 		// Check if response_code is 0
 		if (commitResponse.response_code === 0) {
-			redirect(308, "/success");
+			redirect(308, "/success?rc=0");
 		} else {
 			redirect(308, ("/fail?rc=" + commitResponse.response_code));
 		}
