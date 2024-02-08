@@ -1,7 +1,18 @@
 <script lang="ts">
+	import { onMount } from "svelte";
   import { carrito } from "../stores";
   export let data;
 
-  $carrito.cartItemCountTotal = 0;
+  function updateCount() {
+    $carrito.cartItemCountTotal = 0;
+    console.log("my store:", $carrito);
+  }
+  onMount(() => {
+    updateCount();
+    console.log("my store on mount:", $carrito);//count will not be 0
+    setTimeout(() => {
+      updateCount();
+    }, 1);
+  });
 </script>
-<h1>pago aceptado</h1>
+<p>Pago Recibido</p>
